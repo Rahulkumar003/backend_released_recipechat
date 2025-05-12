@@ -125,7 +125,7 @@ logging.getLogger("transformers").setLevel(logging.ERROR)
 # load_dotenv(os.path.join(script_dir, '.env'))
 
 # Initialize Together AI client
-# api_key = os.getenv('TOGETHER_API_KEY')
+api_key = TOGETHER_API_KEY
 if not api_key:
     raise ValueError("TOGETHER_API_KEY not found in environment variables")
 
