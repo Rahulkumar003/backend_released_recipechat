@@ -5,14 +5,8 @@ python-socketio==5.9.0
 python-engineio==4.7.1
 asyncio==3.4.3
 werkzeug==2.3.7
-langchain-community==0.0.21
 python-dotenv==1.0.1
 together==1.5.5
 gunicorn==21.2.0
 eventlet==0.33.3
-backoff>=2.2.1
-psutil==7.0.0
-requests>=2.28.0
-urllib3==2.2.2
-certifi>=2017.4.17
 apify_client==1.10.0
