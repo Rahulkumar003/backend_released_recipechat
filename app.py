@@ -3,7 +3,6 @@ from flask import Flask, request, jsonify, current_app, copy_current_request_con
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 from recipe_chatbot import RecipeChatBot
-from youtube_transcript_api import YouTubeTranscriptApi
 
 app = Flask(__name__)
 
