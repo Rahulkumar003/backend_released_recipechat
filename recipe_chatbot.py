@@ -3,7 +3,6 @@ import logging
 import re
 from langchain_community.llms.ollama import Ollama
 import asyncio
-import yt_dlp
 import re
 import json
 import os
