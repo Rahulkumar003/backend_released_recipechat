@@ -1,12 +1,12 @@
 import warnings
 import logging
 import re
-from langchain_community.llms.ollama import Ollama
+# from langchain_community.llms.ollama import Ollama
 import asyncio
 import re
 import json
-import os
-from dotenv import load_dotenv
+# import os
+# from dotenv import load_dotenv
 from together import Together
 from apify_client import ApifyClient
 NUTRITION_PROMPT = """
@@ -120,12 +120,12 @@ Maintain a respectful, supportive, and encouraging tone.
 warnings.filterwarnings("ignore")
 logging.getLogger("transformers").setLevel(logging.ERROR)
 
-# Load environment variables
-script_dir = os.path.dirname(os.path.abspath(__file__))
-load_dotenv(os.path.join(script_dir, '.env'))
+# # Load environment variables
+# script_dir = os.path.dirname(os.path.abspath(__file__))
+# load_dotenv(os.path.join(script_dir, '.env'))
 
 # Initialize Together AI client
-api_key = os.getenv('TOGETHER_API_KEY')
+# api_key = os.getenv('TOGETHER_API_KEY')
 if not api_key:
     raise ValueError("TOGETHER_API_KEY not found in environment variables")
 
