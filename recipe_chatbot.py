@@ -6,7 +6,7 @@ import asyncio
 import re
 import json
 import os
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 from together import Together
 from apify_client import ApifyClient
 NUTRITION_PROMPT = """
@@ -121,8 +121,8 @@ warnings.filterwarnings("ignore")
 logging.getLogger("transformers").setLevel(logging.ERROR)
 
 # # Load environment variables
-# script_dir = os.path.dirname(os.path.abspath(__file__))
-# load_dotenv(os.path.join(script_dir, '.env'))
+script_dir = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(script_dir, '.env'))
 
 # Initialize Together AI client
 api_key = os.getenv('TOGETHER_API_KEY')
