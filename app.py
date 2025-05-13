@@ -17,11 +17,10 @@ CORS(app, supports_credentials=True, origins=allowed_origins)
 socketio = SocketIO(
     app, 
     cors_allowed_origins=allowed_origins,
-    async_mode='threading',
+    async_mode='eventlet',  # or 'gevent'
     logger=True,
     engineio_logger=True
 )
-
 # Initialize the chatbot
 chatbot = RecipeChatBot()
 
@@ -41,24 +40,20 @@ def generate_text(data):
         emit('response', {"error": "No prompt provided"})
         return
 
-    def run_async_generator():
+    async def stream_words():
         try:
-            async def stream_words():
-                async for word in chatbot.ask_question_stream(prompt):
-                    socketio.emit('response', {
-                        "data": word, 
-                        "streaming": True
-                    })
-                    await asyncio.sleep(0.1)
-            
-            asyncio.run(stream_words())
+            async for word in chatbot.ask_question_stream(prompt):
+                socketio.emit('response', {
+                    "data": word, 
+                    "streaming": True
+                })
+                await asyncio.sleep(0.1)
             socketio.emit('response', {"complete": True})
-
         except Exception as e:
             print(f"Error in stream_text: {str(e)}")
             socketio.emit('response', {"error": str(e)})
 
-    socketio.start_background_task(run_async_generator)
+    socketio.start_background_task(lambda: asyncio.run_coroutine_threadsafe(stream_words(), asyncio.get_event_loop()).result())
 
 @socketio.on('fetch_recipe_stream')
 def fetch_recipe_stream(data):
