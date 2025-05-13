@@ -17,9 +17,9 @@ CORS(app, supports_credentials=True, origins=allowed_origins)
 socketio = SocketIO(
     app, 
     cors_allowed_origins=allowed_origins,
-    async_mode='eventlet',  # or 'gevent'
+    async_mode='threading',  # or 'gevent'
     logger=True,
-    engineio_logger=True
+    engineio_logger=True,
     ping_timeout=60,  # Increase to prevent premature disconnection
     ping_interval=25
 )
