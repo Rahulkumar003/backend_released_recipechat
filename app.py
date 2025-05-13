@@ -20,6 +20,8 @@ socketio = SocketIO(
     async_mode='eventlet',  # or 'gevent'
     logger=True,
     engineio_logger=True
+    ping_timeout=60,  # Increase to prevent premature disconnection
+    ping_interval=25
 )
 # Initialize the chatbot
 chatbot = RecipeChatBot()
