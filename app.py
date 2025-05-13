@@ -33,7 +33,7 @@ def handle_connect():
 @socketio.on('disconnect')
 def handle_disconnect():
     print("Client disconnected")
-
+    
 @socketio.on('generate_text')
 def generate_text(data):
     print("Received generate_text event with data:", data)
@@ -50,8 +50,9 @@ def generate_text(data):
                         "data": word,
                         "streaming": True
                     })
-                except OSError as e:
+                except (OSError, ConnectionError) as e:
                     print(f"Socket error during emit: {e}")
+                    socketio.emit('response', {"error": "Connection error during streaming"})
                     return
                 await asyncio.sleep(0.1)
             socketio.emit('response', {"complete": True})
@@ -60,14 +61,14 @@ def generate_text(data):
             socketio.emit('response', {"error": str(e)})
 
     def run_async_task():
-        loop = asyncio.new_event_loop()  # Create a new event loop for this thread
+        loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         try:
             loop.run_until_complete(stream_words())
         finally:
             loop.close()
 
-    socketio.start_background_task(run_async_task)
+    socketio.start_background_task(run_async_task)    
 
 @socketio.on('fetch_recipe_stream')
 def fetch_recipe_stream(data):
