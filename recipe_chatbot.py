@@ -472,8 +472,8 @@ class RecipeChatBot:
         
         # Use the LLM to make a final determination
         try:
-            classification = query_llm(classification_prompt).lower().strip()
-            print("this is we get---->", classification)
+            # classification = query_llm(classification_prompt).lower().strip()
+            # print("this is we get---->", classification)
             # Map variations to standard categories
             category_mapping = {
                 "nutrition": "nutrition",
@@ -494,10 +494,10 @@ class RecipeChatBot:
             }
             
             # Find the best matching category
-            for key, value in category_mapping.items():
-                if key in classification:
-                    print(value)
-                    return "general"
+            # for key, value in category_mapping.items():
+            #     if key in classification:
+            #         print(value)
+                    # return "general"
                     
            
             return "general"
