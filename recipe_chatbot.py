@@ -506,30 +506,22 @@ class RecipeChatBot:
             # Fallback to general if LLM classification fails
             return "general"
 
-
-    async def ask_question_stream(self, question):
-        """
-        Asynchronous method to generate a streaming response to the user's question.
-        
-        Args:
-            question (str): The user's question about the recipe
-        
-        Yields:
-            str: Chunks of the response as they are generated
-        """
-        if not self.recipe_data:
-            yield "Please fetch a recipe first by providing a video URL."
-            return
-        history_context = ""
-        if self.conversation_history:
-            history_context = "Conversation History:\n"
-            for turn in self.conversation_history[-3:]:  # Limit to last 3 turns to prevent prompt overflow
-                role = "User" if turn["role"] == "user" else "Assistant"
-                history_context += f"{role}: {turn['content']}\n"
-            history_context += "\n"
-        # Determine the appropriate prompt
-        intent = self.classify_question(question)
-        prompt_mapping = {
+async def ask_question_stream(self, question):
+    if not self.recipe_data:
+        yield "Please fetch a recipe first by providing a video URL."
+        return
+    print(f"DEBUG: Classifying question: {question}")
+    intent = self.classify_question(question)
+    print(f"DEBUG: Question classified as: {intent}")
+    history_context = ""
+    if self.conversation_history:
+        history_context = "Conversation History:\n"
+        for turn in self.conversation_history[-3:]:
+            role = "User" if turn["role"] == "user" else "Assistant"
+            history_context += f"{role}: {turn['content']}\n"
+        history_context += "\n"
+    print(f"DEBUG: History context length: {len(history_context)}")
+    prompt_mapping = {
             "nutrition": NUTRITION_PROMPT,
             "substitution": SUBSTITUTION_PROMPT,
             "procedure": PROCEDURE_PROMPT,
@@ -540,23 +532,19 @@ class RecipeChatBot:
             "safety": SAFETY_PROMPT,
             "general": GENERAL_PROMPT,
         }
-        modified_prompt = prompt_mapping[intent].format(
+    modified_prompt = prompt_mapping[intent].format(
         recipe_data=self.recipe_data, 
         user_question=f"{history_context}Current Question: {question}"
-      )
-        # prompt = prompt_mapping[intent].format(recipe_data=self.recipe_data, user_question=question)
-
-        # Stream the response
-        full_response = ""
-        async for chunk in query_llm_stream(modified_prompt, model=self.model):
-            full_response += chunk
-            print("yee gya chunk ===> ", chunk)
-            yield chunk
-
-        # Update conversation history
-        self.conversation_history.append({"role": "user", "content": question})
-        self.conversation_history.append({"role": "assistant", "content": full_response})
-
+    )
+    print(f"DEBUG: Prompt length: {len(modified_prompt)}")
+    full_response = ""
+    async for chunk in query_llm_stream(modified_prompt, model=self.model):
+        print(f"DEBUG: Received chunk: {chunk}")
+        full_response += chunk
+        yield chunk
+    print("DEBUG: Streaming complete")
+    self.conversation_history.append({"role": "user", "content": question})
+    self.conversation_history.append({"role": "assistant", "content": full_response})
 
     def display_conversation(self):
         """
@@ -572,6 +560,7 @@ async def handle_user_question(user_question):
 async def handle_recipe_genrate(url):
     async for chunk in bot.fetch_recipe(url):
         print(chunk, end='', flush=True)
+        
 # Main Script
 if __name__ == "__main__":
     bot = RecipeChatBot()
