@@ -506,6 +506,7 @@ class RecipeChatBot:
             # Fallback to general if LLM classification fails
             return "general"
 
+
 async def ask_question_stream(self, question):
     if not self.recipe_data:
         yield "Please fetch a recipe first by providing a video URL."
@@ -516,36 +517,40 @@ async def ask_question_stream(self, question):
     history_context = ""
     if self.conversation_history:
         history_context = "Conversation History:\n"
-        for turn in self.conversation_history[-3:]:
+        for turn in self.conversation_history[-3:]:  # Limit to last 3 turn
             role = "User" if turn["role"] == "user" else "Assistant"
             history_context += f"{role}: {turn['content']}\n"
         history_context += "\n"
     print(f"DEBUG: History context length: {len(history_context)}")
     prompt_mapping = {
-            "nutrition": NUTRITION_PROMPT,
-            "substitution": SUBSTITUTION_PROMPT,
-            "procedure": PROCEDURE_PROMPT,
-            "dietary": DIETARY_PROMPT,
-            "storage": STORAGE_PROMPT,
-            "flavor": FLAVOR_PROMPT,
-            "cultural": CULTURAL_PROMPT,
-            "safety": SAFETY_PROMPT,
-            "general": GENERAL_PROMPT,
-        }
+        "nutrition": NUTRITION_PROMPT,
+        "substitution": SUBSTITUTION_PROMPT,
+        "procedure": PROCEDURE_PROMPT,
+        "dietary": DIETARY_PROMPT,
+        "storage": STORAGE_PROMPT,
+        "flavor": FLAVOR_PROMPT,
+        "cultural": CULTURAL_PROMPT,
+        "safety": SAFETY_PROMPT,
+        "general": GENERAL_PROMPT,
+    }
     modified_prompt = prompt_mapping[intent].format(
-        recipe_data=self.recipe_data, 
+        recipe_data=self.recipe_data,
         user_question=f"{history_context}Current Question: {question}"
     )
     print(f"DEBUG: Prompt length: {len(modified_prompt)}")
     full_response = ""
-    async for chunk in query_llm_stream(modified_prompt, model=self.model):
-        print(f"DEBUG: Received chunk: {chunk}")
-        full_response += chunk
-        yield chunk
+    try:
+        async for chunk in query_llm_stream(modified_prompt, model=self.model):
+            print(f"DEBUG: Received chunk: {chunk}")
+            full_response += chunk
+            yield chunk
+    except Exception as e:
+        print(f"Streaming error: {e}")
+        yield f"Error: {str(e)}"
     print("DEBUG: Streaming complete")
     self.conversation_history.append({"role": "user", "content": question})
     self.conversation_history.append({"role": "assistant", "content": full_response})
-
+    
     def display_conversation(self):
         """
         Display the conversation history.
